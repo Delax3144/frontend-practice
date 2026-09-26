@@ -5,6 +5,7 @@ const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,16 +46,31 @@ const UserList = () => {
     return <p>Error: {error}</p>;
   }
 
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div>
-      {users.map((user) => (
-        <div key={user.id}>
-          <h3>{user.name}</h3>
-          <p>{user.email}</p>
-        </div>
-      ))}
+      <input
+        type="search"
+        placeholder="Search users..."
+        onChange={(e) => setSearch(e.target.value)}
+        value={search}
+      />
+
+      {filteredUsers.length === 0 ? (
+        <p>No users found.</p>
+      ) : (
+        filteredUsers.map((user) => (
+          <div key={user.id}>
+            <h3>{user.name}</h3>
+            <p>{user.email}</p>
+          </div>
+        ))
+      )}
     </div>
-  );
-};
+);
+}
 
 export default UserList;
