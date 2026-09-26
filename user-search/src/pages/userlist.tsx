@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import type { User } from "../types/userList";
+import type { User, SortOrder } from "../types/userList";
 
 const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>('default');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -49,6 +50,18 @@ const UserList = () => {
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(search.toLowerCase())
   );
+  
+  const sortedUsers = [...filteredUsers];
+  
+  if (sortOrder === 'asc') {
+    sortedUsers.sort((a, b) => {
+      return a.name.localeCompare(b.name)
+    });
+  } else if (sortOrder === 'desc') {
+    sortedUsers.sort((a, b) => {
+      return b.name.localeCompare(a.name)
+    });
+  }
 
   return (
     <div>
@@ -59,10 +72,29 @@ const UserList = () => {
         value={search}
       />
 
-      {filteredUsers.length === 0 ? (
+      <select 
+        value={sortOrder}
+        onChange={(e) => {
+          const value = e.target.value;
+
+          if (
+            value === "default" ||
+            value === "asc" ||
+            value === "desc"
+          ) {
+            setSortOrder(value);
+          }
+        }
+      }>
+        <option value="default">Default</option>
+        <option value="asc">Name A-Z</option>
+        <option value="desc">Name Z-A</option>
+      </select>
+
+      {sortedUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        filteredUsers.map((user) => (
+        sortedUsers.map((user) => (
           <div key={user.id}>
             <h3>{user.name}</h3>
             <p>{user.email}</p>
