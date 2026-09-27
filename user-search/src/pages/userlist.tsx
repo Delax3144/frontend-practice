@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User, SortOrder } from "../types/userList";
+import UserCard from "../components/UserCard";
+import UserDetails from "../components/UserDetails";
 
 const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -7,6 +9,7 @@ const UserList = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>('default');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,6 +48,15 @@ const UserList = () => {
 
   if (error) {
     return <p>Error: {error}</p>;
+  }
+
+  if (selectedUser) {
+    return (
+      <UserDetails
+        user={selectedUser}
+        onClose={() => setSelectedUser(null)}
+      />
+    );
   }
 
   const filteredUsers = users.filter((user) =>
@@ -95,11 +107,13 @@ const UserList = () => {
         <p>No users found.</p>
       ) : (
         sortedUsers.map((user) => (
-          <div key={user.id}>
-            <h3>{user.name}</h3>
-            <p>{user.email}</p>
-          </div>
-        ))
+        <div
+          key={user.id}
+          onClick={() => setSelectedUser(user)}
+        >
+          <UserCard user={user} />
+        </div>
+      ))
       )}
     </div>
 );
